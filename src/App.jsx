@@ -47,10 +47,12 @@ export default function App() {
 
   const persist = (next) => { setData(next); saveData(next) }
 
-  const series = data.series.find((s) => s.id === selection.seriesId)
-  const book = series?.books.find((b) => b.id === selection.bookId)
-  const unit = book?.units.find((u) => u.id === selection.unitId)
-  const classItem = data.classes.find((c) => c.id === selection.classId)
+  const seriesList = data.series || []
+  const classList = data.classes || []
+  const series = seriesList.find((s) => s.id === selection.seriesId)
+  const book = (series?.books || []).find((b) => b.id === selection.bookId)
+  const unit = (book?.units || []).find((u) => u.id === selection.unitId)
+  const classItem = classList.find((c) => c.id === selection.classId)
 
   const addSeries = (name) => {
     const s = { id: uid(), name, createdAt: Date.now(), books: [] }
@@ -333,8 +335,8 @@ export default function App() {
     <div className={`layout ${sidebarOpen ? 'sidebar-open' : ''}`}>
       {sidebarOpen && <div className="sidebar-overlay" onClick={closeSidebar} />}
       <Sidebar
-        series={data.series}
-        classes={data.classes}
+        series={seriesList}
+        classes={classList}
         selection={selection}
         searchQuery={searchQuery}
         onSelectHome={navAndClose(() => { setSearchQuery(''); navigate({ type: 'home' }) })}
@@ -395,7 +397,7 @@ export default function App() {
           <div className="content-inner">
             {selection.type === 'home' && (
               <HomeView
-                series={data.series}
+                series={seriesList}
                 onAddSeries={() => setShowSeriesForm(true)}
                 onOpenBook={(sid, bid) => navigate({ type: 'book', seriesId: sid, bookId: bid })}
               />
@@ -426,7 +428,7 @@ export default function App() {
             {selection.type === 'class' && classItem && (
               <ClassView
                 classItem={classItem}
-                seriesList={data.series}
+                seriesList={seriesList}
                 onAddStudent={() => setShowStudentForm(true)}
                 onEditProgress={setProgressFormStudent}
                 onOpenStudent={openStudentUnit}
@@ -443,7 +445,7 @@ export default function App() {
       )}
       {showBookForm && (
         <BookForm
-          series={data.series}
+          series={seriesList}
           defaultSeriesId={bookFormDefaultSeries}
           onClose={() => setShowBookForm(false)}
           onSubmit={addBook}
@@ -465,7 +467,7 @@ export default function App() {
       {progressFormStudent && (
         <ProgressForm
           student={progressFormStudent}
-          seriesList={data.series}
+          seriesList={seriesList}
           onClose={() => setProgressFormStudent(null)}
           onSubmit={saveProgress}
         />

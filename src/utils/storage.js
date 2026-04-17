@@ -1,27 +1,46 @@
 const KEY = 'english-zone-data'
 
+function safeSeries(list) {
+  return (Array.isArray(list) ? list : []).map((s) => ({
+    ...s,
+    books: (Array.isArray(s?.books) ? s.books : []).map((b) => ({
+      ...b,
+      units: Array.isArray(b?.units) ? b.units : [],
+    })),
+  }))
+}
+
+function safeClasses(list) {
+  return (Array.isArray(list) ? list : []).map((c) => ({
+    ...c,
+    students: Array.isArray(c?.students) ? c.students : [],
+  }))
+}
+
 export function loadData() {
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return { series: [], classes: [] }
     const data = JSON.parse(raw)
+    if (!data || typeof data !== 'object') return { series: [], classes: [] }
 
     if (data.books && !data.series) {
       return {
-        series: [
+        series: safeSeries([
           {
             id: uid(),
             name: '기본 시리즈',
             createdAt: Date.now(),
             books: data.books,
           },
-        ],
+        ]),
         classes: [],
       }
     }
-    if (!data.series) return { series: [], classes: [] }
-    if (!data.classes) data.classes = []
-    return data
+    return {
+      series: safeSeries(data.series),
+      classes: safeClasses(data.classes),
+    }
   } catch {
     return { series: [], classes: [] }
   }
