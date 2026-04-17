@@ -3,7 +3,7 @@ const KEY = 'english-zone-data'
 export function loadData() {
   try {
     const raw = localStorage.getItem(KEY)
-    if (!raw) return { series: [] }
+    if (!raw) return { series: [], classes: [] }
     const data = JSON.parse(raw)
 
     if (data.books && !data.series) {
@@ -23,7 +23,7 @@ export function loadData() {
     if (!data.classes) data.classes = []
     return data
   } catch {
-    return { series: [] }
+    return { series: [], classes: [] }
   }
 }
 
